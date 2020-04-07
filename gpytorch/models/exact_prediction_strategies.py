@@ -356,7 +356,9 @@ class DefaultPredictionStrategy(object):
             if torch.is_tensor(test_test_covar):
                 # We can use addmm in the 2d case
                 if test_test_covar.dim() == 2:
-                    return lazify(torch.addmm(1, test_test_covar, -1, test_train_covar, covar_correction_rhs))
+                    return lazify(
+                        torch.addmm(test_test_covar, test_train_covar, covar_correction_rhs, beta=1, alpha=-1)
+                    )
                 else:
                     return lazify(test_test_covar + test_train_covar @ covar_correction_rhs.mul(-1))
             # In other cases - we'll use the standard infrastructure
