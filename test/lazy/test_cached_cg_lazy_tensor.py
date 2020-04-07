@@ -89,6 +89,8 @@ class TestCachedCGLazyTensorNoLogdet(LazyTensorTestCase, unittest.TestCase):
         with patch("gpytorch.utils.linear_cg", new=_wrapped_cg) as linear_cg_mock:
             with gpytorch.settings.max_cholesky_size(math.inf if cholesky else 0), gpytorch.settings.cg_tolerance(1e-4):
                 with warnings.catch_warnings(record=True) as ws:
+                    warnings.simplefilter("always")  # Makes sure warnings we catch don't cause `-w error` to fail
+
                     # Perform the inv_matmul
                     if lhs is not None:
                         res = lazy_tensor.inv_matmul(rhs, lhs)
@@ -100,6 +102,8 @@ class TestCachedCGLazyTensorNoLogdet(LazyTensorTestCase, unittest.TestCase):
                     self.assertFalse(any(issubclass(w.category, ExtraComputationWarning) for w in ws))
 
                 with warnings.catch_warnings(record=True) as ws:
+                    warnings.simplefilter("always")  # Makes sure warnings we catch don't cause `-w error` to fail
+
                     # Perform backward pass
                     grad = torch.randn_like(res)
                     res.backward(gradient=grad)
